@@ -3,6 +3,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 
+#define VERBOSE false
+
 #define MAX_N  1000
 #define MAX_L 10000
 
@@ -16,12 +18,13 @@ static int L;
 static int output_message[MAX_N];
 static int O;
 
-inline
-void my_assert(int e){ if (!e) abort(); };
+inline void my_assert(int e) {
+  if (!e)
+    abort();
+};
 
-void send(int a)
-{
-  if(L == MAX_L) {
+void send(int a) {
+  if (L == MAX_L) {
     printf("Encoded message too long.\n");
     exit(0);
   }
@@ -29,95 +32,102 @@ void send(int a)
   L++;
 }
 
-void output(int b)
-{
-  if(O == N)
+void output(int b) {
+  if (O == N)
     O++;
-  if(O > N)
+  if (O > N)
     return;
   output_message[O] = b;
   O++;
 }
 
-static void random_shuffle()
-{
+static void random_shuffle() {
   int i, t, p;
-  for(i=0; i<L-1; i++) {
-    p = rand()%(L-i);
+  for (i = 0; i < L - 1; i++) {
+    p = rand() % (L - i);
     t = encoded_message[i];
-    encoded_message[i] = encoded_message[i+p];
-    encoded_message[i+p] = t;
+    encoded_message[i] = encoded_message[i + p];
+    encoded_message[i + p] = t;
   }
 }
 
-
-static void check_encoded_message()
-{
+static void check_encoded_message() {
   int i;
-  if(L > MAX_EXPANSION * N) {
+  if (L > MAX_EXPANSION * N) {
     printf("Encoded message too long.");
     exit(0);
   }
-  for(i=0; i < L; i++)
-    if((encoded_message[i] < 0) ||
-       (encoded_message[i] > CHANNEL_RANGE)) {
+  for (i = 0; i < L; i++)
+    if ((encoded_message[i] < 0) || (encoded_message[i] > CHANNEL_RANGE)) {
       printf("Bad encoded integer.\n");
       exit(0);
     }
 }
 
-static int check_output()
-{
+static int check_output() {
   int i;
 
-  if(O!=N)
+  if (O != N)
     return 0;
-  for(i = 0; i < N; i++)
-    if(message[i] != output_message[i])
+  for (i = 0; i < N; i++)
+    if (message[i] != output_message[i])
       return 0;
   return 1;
 }
 
-int main()
-{
-  int i,t;
-  double ratio;
+int main() {
+  int i, t;
+  double ratio = 0;
 
   //read input
   printf("Enter message size: ");
-  my_assert(1==scanf("%d",&N));
+  my_assert(1 == scanf("%d", &N));
   printf("Enter message: ");
-  for(i = 0; i < N; i++)
-    my_assert(1==scanf("%d",&message[i]));
+  for (i = 0; i < N; i++)
+    my_assert(1 == scanf("%d", &message[i]));
 
   //let the user do the encoding
   L = 0;
-  encode(N,message);
+  encode(N, message);
+
+  if(VERBOSE) {
+    printf("Message : [ ");
+    for (int i = 0; i < N; i++)
+      printf("%d ", encoded_message[i]);
+    printf("]\n");
+  }
 
   //calculate ratio of message size
-  if((double) L / N > ratio)
-    ratio = ((double)L)/N;
-
+  if ((double) L / N > ratio) {
+    ratio = ((double) L) / N;
+  }
 
   //test the decoding by different shuffle 5 times, the first one is nut shuffled
-  for(t=0; t<5; t++) {
+  for (t = 0; t < 5; t++) {
 
     check_encoded_message();
 
-    if(t>0)
+    if (t > 0)
       random_shuffle();
 
     // NN = 0;
     O = 0;
-    decode(N,L,encoded_message);
+    decode(N, L, encoded_message);
 
-    if(!check_output()) {
-      printf("run %d: Incorrect.\n",t);
+    if (!check_output()) {
+      printf("x run %d: Incorrect.\n", t);
     } else {
-      printf("run %d: Correct.\n",t);
+      printf("run %d: Correct.\n", t);
+    }
+
+    if(VERBOSE) {
+    printf("Output : [ ");
+      for (int i = 0; i < N; i++)
+        printf("%d ", output_message[i]);
+      printf("]\n");
     }
   }
-  printf("Input size: %d\nMessage size: %d\nRatio = %3.3f\n",N,L,ratio);
+  printf("Input size: %d\nMessage size: %d\nRatio = %3.3f\n", N, L, ratio);
 
   return 0;
 }
