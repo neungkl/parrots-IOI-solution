@@ -1,18 +1,18 @@
-#include "user_lib.h"
 #include "student.h"
+#include "user_lib.h"
+#include <cstdlib>
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 
-#define VERBOSE false
-
-#define MAX_N  1000
+#define MAX_N 1000
 #define MAX_L 10000
 
-#define CHANNEL_RANGE 65535
-#define MAX_EXPANSION 10
+int channel_range = 65535;
+int max_expansion = 15;
 
 static int message[MAX_N];
-static int N; // NN;
+static int N;
 static int encoded_message[MAX_L];
 static int L;
 static int output_message[MAX_N];
@@ -41,6 +41,23 @@ void output(int b) {
   O++;
 }
 
+static void sort_message(int d) {
+  int i, j, b, bi, t;
+  for (i = 0; i < L - 1; i++) {
+    bi = i;
+    b = encoded_message[i];
+    for (j = i + 1; j < L; j++)
+      if (((d == 0) && (encoded_message[j] < b)) ||
+          ((d == 1) && (encoded_message[j] > b))) {
+        b = encoded_message[j];
+        bi = j;
+      }
+    t = encoded_message[i];
+    encoded_message[i] = encoded_message[bi];
+    encoded_message[bi] = t;
+  }
+}
+
 static void random_shuffle() {
   int i, t, p;
   for (i = 0; i < L - 1; i++) {
@@ -51,14 +68,23 @@ static void random_shuffle() {
   }
 }
 
+static void shuffle(int method) {
+  if (method == 0)
+    sort_message(0);
+  else if (method == 1)
+    sort_message(1);
+  else
+    random_shuffle();
+}
+
 static void check_encoded_message() {
   int i;
-  if (L > MAX_EXPANSION * N) {
+  if (L > max_expansion * N) {
     printf("Encoded message too long.");
     exit(0);
   }
   for (i = 0; i < L; i++)
-    if ((encoded_message[i] < 0) || (encoded_message[i] > CHANNEL_RANGE)) {
+    if ((encoded_message[i] < 0) || (encoded_message[i] > channel_range)) {
       printf("Bad encoded integer.\n");
       exit(0);
     }
@@ -75,34 +101,88 @@ static int check_output() {
   return 1;
 }
 
+void count_bird() {
+
+  int i, tt, t, p, r;
+
+  int count = 0;
+  int original = 0;
+
+  scanf("%d", &tt);
+  scanf("%d %d", &max_expansion, &channel_range);
+
+  scanf("%d", &r);
+  srand(r);
+
+  for (t = 0; t < tt; t++) {
+    scanf("%d", &N);
+    for (i = 0; i < N; i++)
+      scanf("%d", &message[i]);
+
+    original += N;
+
+    L = 0;
+    encode(N, message);
+
+    count += L;
+
+    check_encoded_message();
+
+    scanf("%d", &p);
+    shuffle(p);
+
+    O = 0;
+    decode(N, L, encoded_message);
+
+    if (!check_output()) {
+      printf("Incorrect\n");
+      exit(0);
+    }
+  }
+  printf("Correct. ");
+  printf("Bird use : %d / %d\n", count, original);
+}
+
 int main() {
+
+  const char *countBird = std::getenv("COUNT_BIRD");
+  const char *verbose = std::getenv("VERBOSE");
+
+  if (countBird != NULL) {
+    count_bird();
+    return 0;
+  }
+
   int i, t;
   double ratio = 0;
 
-  //read input
+  // read input
   printf("Enter message size: ");
   my_assert(1 == scanf("%d", &N));
   printf("Enter message: ");
   for (i = 0; i < N; i++)
     my_assert(1 == scanf("%d", &message[i]));
 
-  //let the user do the encoding
+  printf("\n");
+
+  // let the user do the encoding
   L = 0;
   encode(N, message);
 
-  if(VERBOSE) {
+  if (verbose != NULL) {
     printf("Message : [ ");
     for (int i = 0; i < N; i++)
       printf("%d ", encoded_message[i]);
     printf("]\n");
   }
 
-  //calculate ratio of message size
-  if ((double) L / N > ratio) {
-    ratio = ((double) L) / N;
+  // calculate ratio of message size
+  if ((double)L / N > ratio) {
+    ratio = ((double)L) / N;
   }
 
-  //test the decoding by different shuffle 5 times, the first one is nut shuffled
+  // test the decoding by different shuffle 5 times, the first one is nut
+  // shuffled
   for (t = 0; t < 5; t++) {
 
     check_encoded_message();
@@ -120,8 +200,8 @@ int main() {
       printf("run %d: Correct.\n", t);
     }
 
-    if(VERBOSE) {
-    printf("Output : [ ");
+    if (verbose != NULL) {
+      printf("Output : [ ");
       for (int i = 0; i < N; i++)
         printf("%d ", output_message[i]);
       printf("]\n");
