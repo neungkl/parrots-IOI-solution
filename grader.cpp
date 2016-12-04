@@ -182,7 +182,7 @@ int main() {
   if (verbose != NULL) {
     printf("Message : [ ");
     for (int i = 0; i < N; i++)
-      printf("%d ", encoded_message[i]);
+      printf("%d ", message[i]);
     printf("]\n");
   }
 
@@ -205,19 +205,22 @@ int main() {
     decode(N, L, encoded_message);
 
     if (!check_output()) {
-      printf("x run %d: Incorrect.\n", t);
+      printf("--> run %d : Incorrect.\n", t);
+      printf("Size -> Result : %d, Expect : %d\n", O, N);
     } else {
-      printf("run %d: Correct.\n", t);
+      printf("--> run %d : Correct.\n", t);
     }
 
     if (verbose != NULL) {
-      printf("Output : [ ");
+      printf("Output  : [ ");
       for (int i = 0; i < N; i++)
         printf("%d ", output_message[i]);
       printf("]\n");
     }
+
+    printf("\n");
   }
-  printf("Input size: %d\nMessage size: %d\nRatio = %3.3f\n", N, L, ratio);
+  printf("Input size: %d\nMessage size: %d\nRatio = %3.3f\n\n", N, L, ratio);
 
   return 0;
 }
