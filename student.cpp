@@ -11,8 +11,8 @@ void encode(int N, int M[]) {
         } else if (M[i + 32] & k) {
           send(i * 8 + j);
           send(i * 8 + j);
-        } else if (M[i] & k) {
           send(i * 8 + j);
+        } else if (M[i] & k) {
           send(i * 8 + j);
           send(i * 8 + j);
         }
@@ -43,10 +43,10 @@ void decode(int N, int L, int X[]) {
   for (int i = 0; i < 256; i++) {
     if(N > 32) {
       switch (bitCount[i]) {
-      case 3:
+      case 2:
         message[i / 8] |= (1 << (i % 8));
         break;
-      case 2:
+      case 3:
         message[i / 8 + 32] |= 1 << (i % 8);
         break;
       case 1:

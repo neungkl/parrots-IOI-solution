@@ -101,7 +101,7 @@ static int check_output() {
   return 1;
 }
 
-void count_bird() {
+void count_bird(int isReport) {
 
   int i, tt, t, p, r;
 
@@ -135,21 +135,31 @@ void count_bird() {
     decode(N, L, encoded_message);
 
     if (!check_output()) {
-      printf("Incorrect\n");
+      if(isReport) {
+        printf("-");
+      } else {
+        printf("Incorrect\n");
+      }
       exit(0);
     }
   }
-  printf("Correct. ");
-  printf("Bird use : %d / %d\n", count, original);
+
+  if(isReport) {
+    printf("[uses %d parrots]", count);
+  } else {
+    printf("Correct. ");
+    printf("Bird use : %d / %d (%.3f)\n", count, original, count/(float)original);
+  }
 }
 
 int main() {
 
   const char *countBird = std::getenv("COUNT_BIRD");
   const char *verbose = std::getenv("VERBOSE");
+  const char *report = std::getenv("REPORT");
 
-  if (countBird != NULL) {
-    count_bird();
+  if (countBird != NULL || report != NULL) {
+    count_bird(report != NULL);
     return 0;
   }
 
