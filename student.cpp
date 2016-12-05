@@ -3,7 +3,14 @@
 
 void encode(int N, int M[]) {
 
-  if (N < 16) {
+  if (N <= 8) {
+
+    for (int i = 0; i < N; i++) {
+      send((i << 5) | (M[i] & 0xf));
+      send((i << 5) | (1 << 4) | ((M[i] >> 4) & 0xf));
+    }
+
+  } else if (N <= 16) {
 
     for (int i = 0; i < N; i++) {
       send((i << 4) + (M[i] & 0xf));
@@ -46,9 +53,13 @@ void decode(int N, int L, int X[]) {
 
   int message[64] = {0};
 
-  if (N < 16) {
+  if (N <= 8) {
 
-    // For test case with 8 < N < 16
+    for (int i = 0; i < L; i++) {
+      message[X[i] >> 5] |= (X[i] & 0xf) << (4 * ((X[i] >> 4) & 1));
+    }
+
+  } else if (N <= 16) {
 
     int message_box[16][16];
 

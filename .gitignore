@@ -2,3 +2,4 @@
 bin/
 grader.expect.*
 **/*.o
+npm-debug.log
