@@ -6,7 +6,7 @@ all:
 	@g++ -Wall -c student.cpp -o obj/Debug/student.o
 	@g++ -Wall obj/Debug/grader.o obj/Debug/student.o -o bin/Debug/parrot
 
-report: all
+test-report: all
 	$(eval export REPORT=1)
 
 	@bin/Debug/parrot < test/subtask1/grader.in.1
@@ -100,10 +100,13 @@ test-real: all
 	@/bin/echo -n "5.7 -> "
 	@bin/Debug/parrot < test/subtask5/grader.in.7
 
-pre-verbose:
+set-verbose:
 	$(eval export VERBOSE=1)
 
-verbose: pre-verbose test
+test-verbose: set-verbose test
+
+test-one: set-verbose all
+	@echo "10 255 255 255 255 255 255 255 255 255 255" | bin/Debug/parrot
 
 test: all
 	@echo "1 1" | bin/Debug/parrot
@@ -113,4 +116,4 @@ test: all
 	@echo "64 0 128 250 10 9 6 7 100 255 100 0 9 8 20 5 77 98 77 100 255 0 128 250 10 9 6 7 100 255 100 0 9 8 20 5 77 98 77 100 255 0 128 250 10 9 6 7 100 255 100 0 9 8 20 5 77 98 77 100 255 123 153 111 222" | bin/Debug/parrot
 	@echo "64 255 255 255 255 255 255 255 255 255 255 255 255 255 255 255 255 255 255 255 255 255 255 255 255 255 255 255 255 255 255 255 255 255 255 255 255 255 255 255 255 255 255 255 255 255 255 255 255 255 255 255 255 255 255 255 255 255 255 255 255 255 255 255 255" | bin/Debug/parrot
 
-PHONY: all test verbose report test-real
+PHONY: all test test-report test-real test-one test-verbose
