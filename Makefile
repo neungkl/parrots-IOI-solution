@@ -1,9 +1,12 @@
+# SOURCE_CODE := student-big-number-optimize.cpp
+SOURCE_CODE := student.cpp
+
 run: all
 	@bin/Debug/parrot
 
 all:
 	@g++ -Wall -c grader.cpp -o obj/Debug/grader.o
-	@g++ -Wall -c student.cpp -o obj/Debug/student.o
+	@g++ -Wall -c $(SOURCE_CODE) -o obj/Debug/student.o
 	@g++ -Wall obj/Debug/grader.o obj/Debug/student.o -o bin/Debug/parrot
 
 test-report: all

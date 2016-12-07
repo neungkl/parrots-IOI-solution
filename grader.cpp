@@ -4,6 +4,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <time.h>
 
 #define MAX_N 1000
 #define MAX_L 10000
@@ -107,6 +108,10 @@ void count_bird(int isReport) {
 
   int count = 0;
   int original = 0;
+  int pass = true;
+  clock_t timeUse;
+
+  timeUse = clock();
 
   scanf("%d", &tt);
   scanf("%d %d", &max_expansion, &channel_range);
@@ -135,21 +140,29 @@ void count_bird(int isReport) {
     decode(N, L, encoded_message);
 
     if (!check_output()) {
-      if(isReport) {
-        printf("-");
-      } else {
-        printf("Incorrect\n");
-      }
-      exit(0);
+      pass = false;
     }
   }
 
-  if(isReport) {
-    printf("[uses %d parrots]", count);
+  timeUse = clock() - timeUse;
+
+  if(pass) {
+    if (isReport) {
+      printf("[uses %d parrots]", count);
+    } else {
+      printf("Correct. ");
+      printf("Bird use : %d / %d (%.3f) [%f s]\n", count, original,
+             count / (float)original, ((float)timeUse) / CLOCKS_PER_SEC);
+    }
   } else {
-    printf("Correct. ");
-    printf("Bird use : %d / %d (%.3f)\n", count, original, count/(float)original);
+    if (isReport) {
+      printf("-");
+    } else {
+      printf("Incorrect [%f s]\n", ((float)timeUse) / CLOCKS_PER_SEC);
+    }
   }
+
+
 }
 
 int main() {
