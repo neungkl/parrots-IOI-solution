@@ -188,11 +188,12 @@ void encode(int N, int M[]) {
   BigInteger num[2];
   num[0] = 0;
   num[1] = 0;
+  const int K = 4;
   for (int i = 0, p = 0; i < N; i++, p++) {
-    BigInteger tmp((M[i] / 16) & 0xf);
-    num[0] += tmp.pow(i * 4);
-    tmp = (M[i] & 0xf);
-    num[1] += tmp.pow(i * 4);
+    BigInteger tmp(M[i] >> (8 - K));
+    num[0] += tmp.pow(i * K);
+    tmp = (M[i] & ((1 << (8 - K)) - 1));
+    num[1] += tmp.pow(i * (8 - K));
   }
 
   // printf("0 : "); num[0].print("\n");
@@ -453,14 +454,15 @@ void decode(int N, int L, int X[]) {
 
   int message[64] = {0};
 
+  const int K = 4;
   for(int d=0; d<2; d++) {
     for (int i = 0; i < N; i++) {
       if(d == 0) {
-        message[i] |= (num[d].n[0] & 0xf) << 4;
+        message[i] |= (num[d].n[0] & ((1 << K) - 1)) << (8 - K);
       } else {
-        message[i] |= (num[d].n[0] & 0xf);
+        message[i] |= (num[d].n[0] & ((1 << (8 - K)) - 1));
       }
-      num[d].shift(4);
+      num[d].shift(d == 0 ? K : 8 - K);
     }
   }
 
