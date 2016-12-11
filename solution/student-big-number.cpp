@@ -66,8 +66,10 @@ struct BigInteger {
     int mhid = hid > other.hid ? hid : other.hid;
     for (int i = 0; i < mhid; i++) {
       ret->n[i] = overflow;
-      if(i < hid) ret->n[i] = ret->n[i] + n[i];
-      if(i < other.hid) ret->n[i] = ret->n[i] + other.n[i];
+      if (i < hid)
+        ret->n[i] = ret->n[i] + n[i];
+      if (i < other.hid)
+        ret->n[i] = ret->n[i] + other.n[i];
       overflow = ret->n[i] / NUM_SIZE;
       ret->n[i] %= NUM_SIZE;
     }
@@ -112,10 +114,10 @@ struct BigInteger {
 
   BigInteger shift8() {
 
-    int mod = 1<<8;
+    int mod = 1 << 8;
     int left = 0;
 
-    for(int i = hid - 1; i>=0; i--) {
+    for (int i = hid - 1; i >= 0; i--) {
       n[i] += left * NUM_SIZE;
       left = n[i] % mod;
       n[i] /= mod;
@@ -177,7 +179,7 @@ void encode(int N, int M[]) {
     --r;
   }
 
-  //num.print("\n");
+  // num.print("\n");
 
   num = num - dp[r][c];
   send(c);
@@ -216,8 +218,8 @@ void decode(int N, int L, int X[]) {
     }
   }
 
-  sort(X, X+L);
-  reverse(X, X+L);
+  sort(X, X + L);
+  reverse(X, X + L);
 
   BigInteger num = 0;
   int r = L - 1;
@@ -231,7 +233,7 @@ void decode(int N, int L, int X[]) {
 
   // num.print("\n");
 
-  for(int i=0; i<N; i++) {
+  for (int i = 0; i < N; i++) {
     output(num.n[0] & 0xff);
     num.shift8();
   }

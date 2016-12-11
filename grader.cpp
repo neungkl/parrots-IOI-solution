@@ -81,7 +81,7 @@ static void shuffle(int method) {
 static void check_encoded_message() {
   int i;
   if (L > max_expansion * N) {
-    printf("Encoded message too long.");
+    printf("Encoded message too long.\n");
     exit(0);
   }
   for (i = 0; i < L; i++)

@@ -113,9 +113,9 @@ void encode(int N, int M[]) {
       return k;
     }
 
-    void shift8() {
+    void shift(int k) {
 
-      int mod = 1 << 8;
+      int mod = 1 << k;
       int left = 0;
 
       for (int i = hid - 1; i >= 0; i--) {
@@ -141,15 +141,21 @@ void encode(int N, int M[]) {
     }
   };
 
-  BigInteger dp[512][256];
+  BigInteger dp[512][128];
 
-  const int N_MAX = 256;
+  const int N_MAX = 128;
 
-  BigInteger biOne(1);
+  if (!everCalcEncode) {
 
-  if(!everCalcEncode) {
+    BigInteger biOne(1);
 
-    for (int i = 0; i < N_MAX * 3 / 2; i++) {
+    for (int i = 0; i < N_MAX * 3; i++) {
+      for (int j = 0; j < N_MAX; j++) {
+        dp[i][j] = 0;
+      }
+    }
+
+    for (int i = 0; i < N_MAX * 3; i++) {
       for (int j = 0; j < N_MAX; j++) {
         if (i == 0) {
           dp[i][j] = j;
@@ -168,39 +174,56 @@ void encode(int N, int M[]) {
       }
     }
 
+    // printf("========");
+    // for(int i=30; i<31; i++) {
+    //   for(int j=0; j<10; j++) {
+    //     dp[i][j].print(" ");
+    //   }
+    //   printf("\n");
+    // }
+
     everCalcEncode = 1;
   }
 
-  BigInteger num(0);
+  BigInteger num[2];
+  num[0] = 0;
+  num[1] = 0;
   for (int i = 0, p = 0; i < N; i++, p++) {
-    BigInteger num2(M[i]);
-    num += num2.pow(i * 8);
+    BigInteger tmp((M[i] / 16) & 0xf);
+    num[0] += tmp.pow(i * 4);
+    tmp = (M[i] & 0xf);
+    num[1] += tmp.pow(i * 4);
   }
 
-  // num.print("\n");
+  // printf("0 : "); num[0].print("\n");
+  // printf("1 : "); num[1].print("\n");
 
-  int r, c;
-  r = 0, c = 0;
-  while (dp[r][c] <= num) {
-    if (++c >= N_MAX) {
-      c = 0;
-      ++r;
+  for (int i = 0; i < 2; i++) {
+    int r, c;
+    r = 0, c = 0;
+
+    while (dp[r][c] <= num[i]) {
+      if (++c >= N_MAX) {
+        c = 0;
+        ++r;
+      }
     }
-  }
-  if (--c < 0) {
-    c = N_MAX - 1;
-    --r;
-  }
+    if (--c < 0) {
+      c = N_MAX - 1;
+      --r;
+    }
 
-  num -= dp[r][c];
-  send(c);
-  for (--r; r >= 0; --r) {
-    num += dp[r][0];
-    while (num < dp[r][c])
-      c--;
+    num[i] -= dp[r][c];
+    send(c | (i << 7));
 
-    send(c);
-    num -= dp[r][c];
+    for (--r; r >= 0; --r) {
+      num[i] += dp[r][0];
+      while (num[i] < dp[r][c])
+        c--;
+
+      send(c | (i << 7));
+      num[i] -= dp[r][c];
+    }
   }
 }
 
@@ -323,9 +346,9 @@ void decode(int N, int L, int X[]) {
       return k;
     }
 
-    void shift8() {
+    void shift(int k) {
 
-      int mod = 1 << 8;
+      int mod = 1 << k;
       int left = 0;
 
       for (int i = hid - 1; i >= 0; i--) {
@@ -351,15 +374,21 @@ void decode(int N, int L, int X[]) {
     }
   };
 
-  BigInteger dp[512][256];
+  BigInteger dp[512][128];
 
-  const int N_MAX = 256;
+  const int N_MAX = 128;
 
-  BigInteger biOne(1);
+  if (!everCalcDecode) {
 
-  if(!everCalcDecode) {
+    BigInteger biOne(1);
 
-    for (int i = 0; i < N_MAX * 3 / 2; i++) {
+    for (int i = 0; i < N_MAX * 3; i++) {
+      for (int j = 0; j < N_MAX; j++) {
+        dp[i][j] = 0;
+      }
+    }
+
+    for (int i = 0; i < N_MAX * 3; i++) {
       for (int j = 0; j < N_MAX; j++) {
         if (i == 0) {
           dp[i][j] = j;
@@ -378,27 +407,64 @@ void decode(int N, int L, int X[]) {
       }
     }
 
+    // printf("========");
+    // for(int i=30; i<31; i++) {
+    //   for(int j=0; j<10; j++) {
+    //     dp[i][j].print(" ");
+    //   }
+    //   printf("\n");
+    // }
+
     everCalcDecode = 1;
   }
 
-  sort(X, X + L);
-  reverse(X, X + L);
+  int D[2][1000];
+  int DL[2] = {0};
 
-  BigInteger num = 0;
-  int r = L - 1;
-  for (int i = 0; i < L; i++, r--) {
-    if (i == 0) {
-      num += dp[r][X[i]];
-    } else {
-      num += dp[r][X[i]];
-      num -= dp[r][0];
+  for (int i = 0; i < L; i++) {
+    int d = X[i] >> 7;
+    D[d][DL[d]++] = X[i] & 0b01111111;
+  }
+
+  sort(D[0], D[0] + DL[0]);
+  reverse(D[0], D[0] + DL[0]);
+  sort(D[1], D[1] + DL[1]);
+  reverse(D[1], D[1] + DL[1]);
+
+  BigInteger num[2];
+
+  num[0] = 0;
+  num[1] = 0;
+
+  for (int d = 0; d < 2; d++) {
+    int r = DL[d] - 1;
+    for (int i = 0; i < DL[d]; i++, r--) {
+      if (i == 0) {
+        num[d] += dp[r][D[d][i]];
+      } else {
+        num[d] += dp[r][D[d][i]];
+        num[d] -= dp[r][0];
+      }
     }
   }
 
-  // num.print("\n");
+  // num[0].print("\n");
+  // num[1].print("\n");
 
-  for (int i = 0; i < N; i++) {
-    output(num.n[0] & 0xff);
-    num.shift8();
+  int message[64] = {0};
+
+  for(int d=0; d<2; d++) {
+    for (int i = 0; i < N; i++) {
+      if(d == 0) {
+        message[i] |= (num[d].n[0] & 0xf) << 4;
+      } else {
+        message[i] |= (num[d].n[0] & 0xf);
+      }
+      num[d].shift(4);
+    }
+  }
+
+  for(int i=0; i<N; i++) {
+    output(message[i]);
   }
 }
