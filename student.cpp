@@ -181,13 +181,11 @@ void encode(int N, int M[]) {
       rangeMax = M[i];
   }
 
-  if (rangeMin == 0 && rangeMax == 0) return ;
+  //if (rangeMin == 0 && rangeMax == 0) return ;
   if (rangeMin == 255 && rangeMax == 255) {
-    send(255);
-    send(255);
     return;
   }
-  if (rangeMin == 0 && rangeMax == 1 && N == 8) {
+  if (rangeMin >= 0 && rangeMax <= 1 && N == 8) {
     int data = 0;
     for (int i = 0; i < N; i++) {
       data |= ((M[i] & 1) << i);
@@ -407,16 +405,11 @@ void decode(int N, int L, int X[]) {
   }
 
   if (L == 0) {
-    for(int i=0; i<N; i++) {
-      output(0);
-    }
-    return ;
-  } else if (L == 2) {
     for (int i = 0; i < N; i++) {
       output(255);
     }
     return;
-  } else if (L == 1) {
+  } else if (L == 1 && N == 8) {
     for (int i = 0; i < 8; i++) {
       output(X[0] & 1);
       X[0] >>= 1;
