@@ -197,15 +197,14 @@ void encode(int N, int M[]) {
     send(data);
     return;
   }
-  if(rangeMin >= 128) {
-    // printf("!");
+  if(rangeMin >= 128 && N <= 8) {
     sp = 1;
   }
 
   BigInteger num(0);
   for (int i = 0, p = 0; i < N; i++, p++) {
-    BigInteger num2(M[i]);
-    num += num2.pow(i * 8);
+    BigInteger num2(sp == 0 ? M[i] : M[i] - 128);
+    num += num2.pow(i * (sp == 0 ? 8 : 7));
   }
 
   // num.print("\n");
@@ -227,7 +226,6 @@ void encode(int N, int M[]) {
 
   num -= dp[r][c];
   send(c);
-  // if(sp) printf("%d\n",c);
   K++;
   for (--r; r >= 0; --r) {
     num += dp[r][0];
@@ -239,7 +237,6 @@ void encode(int N, int M[]) {
     num -= dp[r][c];
   }
 
-  // if(sp == 1) printf("%d %d %f\n",N,K,K/(float)N);
 }
 
 //------------------- DO NOT REMOVE NOR EDIT THESE 3 LINES -----------------
@@ -419,6 +416,8 @@ void decode(int N, int L, int X[]) {
     everCalcDecode = 1;
   }
 
+  int sp = 0;
+
   if (L == 0) {
     for (int i = 0; i < N; i++) {
       output(0);
@@ -438,6 +437,13 @@ void decode(int N, int L, int X[]) {
   }
 
   sort(X, X + L);
+
+  if(N <= 8 && X[L - 1] == 254) {
+    if(X[L - 1] == 253) sp = 1;
+    else sp = 2;
+    L--;
+  }
+
   reverse(X, X + L);
 
   BigInteger num(0);
@@ -454,8 +460,23 @@ void decode(int N, int L, int X[]) {
     }
   }
 
-  for (int i = 0; i < N; i++) {
-    output(num.n[0] & 0xff);
-    num.shift(8);
+  BigInteger num2 = num;
+
+  int message[64];
+
+  for(int i=0; i<N; i++) {
+    message[i] = (num.n[0] & 0b01111111) + 128;
+    num.shift(7);
+  }
+
+  if(!(num.hid == 1 && num.n[0] == 0)) {
+    for(int i=0; i<N; i++) {
+      message[i] = num2.n[0] & 0xff;
+      num2.shift(8);
+    }
+  }
+
+  for(int i=0; i<N; i++) {
+    output(message[i]);
   }
 }
