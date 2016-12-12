@@ -173,6 +173,7 @@ void encode(int N, int M[]) {
 
   int rangeMin = 256;
   int rangeMax = 0;
+  int sp = 0;
 
   for (int i = 0; i < N; i++) {
     if (M[i] < rangeMin)
@@ -181,9 +182,12 @@ void encode(int N, int M[]) {
       rangeMax = M[i];
   }
 
-  //if (rangeMin == 0 && rangeMax == 0) return ;
-  if (rangeMin == 255 && rangeMax == 255) {
+  if (rangeMin == 0 && rangeMax == 0) {
     return;
+  }
+  if(rangeMin == 255 && rangeMax == 255) {
+    send(0);
+    return ;
   }
   if (rangeMin >= 0 && rangeMax <= 1 && N == 8) {
     int data = 0;
@@ -193,6 +197,10 @@ void encode(int N, int M[]) {
     send(data);
     return;
   }
+  if(rangeMin >= 128) {
+    // printf("!");
+    sp = 1;
+  }
 
   BigInteger num(0);
   for (int i = 0, p = 0; i < N; i++, p++) {
@@ -201,6 +209,8 @@ void encode(int N, int M[]) {
   }
 
   // num.print("\n");
+
+  int K = 0;
 
   int r, c;
   r = 0, c = 0;
@@ -217,14 +227,19 @@ void encode(int N, int M[]) {
 
   num -= dp[r][c];
   send(c);
+  // if(sp) printf("%d\n",c);
+  K++;
   for (--r; r >= 0; --r) {
     num += dp[r][0];
     while (num < dp[r][c])
       c--;
 
     send(c);
+    K++;
     num -= dp[r][c];
   }
+
+  // if(sp == 1) printf("%d %d %f\n",N,K,K/(float)N);
 }
 
 //------------------- DO NOT REMOVE NOR EDIT THESE 3 LINES -----------------
@@ -406,9 +421,14 @@ void decode(int N, int L, int X[]) {
 
   if (L == 0) {
     for (int i = 0; i < N; i++) {
-      output(255);
+      output(0);
     }
     return;
+  } else if (L == 1 && X[0] == 0) {
+    for (int i = 0; i < N; i++) {
+      output(255);
+    }
+    return ;
   } else if (L == 1 && N == 8) {
     for (int i = 0; i < 8; i++) {
       output(X[0] & 1);
