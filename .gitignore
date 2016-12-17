@@ -1,4 +1,4 @@
+.DS_Store
 bin/
 grader.expect.*
 **/*.o
-npm-debug.log
