@@ -173,7 +173,6 @@ void encode(int N, int M[]) {
 
   int rangeMin = 256;
   int rangeMax = 0;
-  int sp = 0;
 
   for (int i = 0; i < N; i++) {
     if (M[i] < rangeMin)
@@ -197,14 +196,23 @@ void encode(int N, int M[]) {
     send(data);
     return;
   }
-  if(rangeMin >= 128 && N <= 8) {
-    sp = 1;
+
+  int input[64];
+
+  for(int i=0; i<N; i++) {
+    input[i] = M[i];
+  }
+
+  if(N%2 == 0) {
+    for(int i=N-1,j=0; i>=0; i--,j++) {
+      input[j] = M[i];
+    }
   }
 
   BigInteger num(0);
   for (int i = 0, p = 0; i < N; i++, p++) {
-    BigInteger num2(sp == 0 ? M[i] : M[i] - 128);
-    num += num2.pow(i * (sp == 0 ? 8 : 7));
+    BigInteger num2(input[i]);
+    num += num2.pow(i * 8);
   }
 
   // num.print("\n");
@@ -416,8 +424,6 @@ void decode(int N, int L, int X[]) {
     everCalcDecode = 1;
   }
 
-  int sp = 0;
-
   if (L == 0) {
     for (int i = 0; i < N; i++) {
       output(0);
@@ -437,13 +443,6 @@ void decode(int N, int L, int X[]) {
   }
 
   sort(X, X + L);
-
-  if(N <= 8 && X[L - 1] == 254) {
-    if(X[L - 1] == 253) sp = 1;
-    else sp = 2;
-    L--;
-  }
-
   reverse(X, X + L);
 
   BigInteger num(0);
@@ -465,18 +464,17 @@ void decode(int N, int L, int X[]) {
   int message[64];
 
   for(int i=0; i<N; i++) {
-    message[i] = (num.n[0] & 0b01111111) + 128;
-    num.shift(7);
+    message[i] = num2.n[0] & 0xff;
+    num2.shift(8);
   }
 
-  if(!(num.hid == 1 && num.n[0] == 0)) {
-    for(int i=0; i<N; i++) {
-      message[i] = num2.n[0] & 0xff;
-      num2.shift(8);
+  if(N%2 == 0) {
+    for(int i=N-1; i>=0; i--) {
+      output(message[i]);
     }
-  }
-
-  for(int i=0; i<N; i++) {
-    output(message[i]);
+  } else {
+    for(int i=0; i<N; i++) {
+      output(message[i]);
+    }
   }
 }
