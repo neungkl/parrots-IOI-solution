@@ -388,3 +388,35 @@ Now, it's work. Let's see the result.
 <img src=".github/sol-3.png" width="600">
 
 The result is incredible. The maximum ratio was hit to 3.82.
+
+**A tricky optimization**
+
+A little tricky optimization is handle with every number in *Original Message* is all 255.
+I just sent no message for telling the *Decode* function, this is the edge test case.
+
+And also using one encoded message for subtask 1.
+(Every input in subtask 1 is 1-bit with 8 messages. So, I convert input into 8-bits message)
+
+And some rearrange order of *Original Message*. Here the result.
+
+<img src=".github/sol-4.png" width="600">
+
+This is my best ratio. I got 2 rank out of 82 in my class.
+The ratio of rank 1 is less than my ratio about 0.001 (His ratio is 2.464. Mine are 2.465).
+
+## Thanks
+
+- 2110327 Algorithm Design Class for this challenge
+- International Olympiad in Informatics 2011 : [Parrots Task](parrots_task.pdf)
+- International Olympiad in Informatics 2011 : [Public Solution](http://www.ioinformatics.org/locations/ioi11/contest/hsc/tasks/solutions/parrots.pdf)
+- [Score Visualizer](https://neungkl.github.io/parrots-score-calculation/)
+this project is also created by me. See the [repository](https://github.com/neungkl/parrots-score-calculation).
+
+## License
+The MIT License (MIT) Copyright (c) 2016 Kosate Limpongsa
+
+Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
